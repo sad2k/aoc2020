@@ -1,5 +1,4 @@
 
-import System.Directory
 import System.IO
 
 findSolution :: [Int] -> Int
