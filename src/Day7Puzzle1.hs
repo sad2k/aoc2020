@@ -1,5 +1,3 @@
--- {-# LANGUAGE DuplicateRecordFields #-}
-
 import System.IO
 import Data.Char
 import Data.List
