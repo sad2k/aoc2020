@@ -14,7 +14,7 @@ build-type:           Simple
 cabal-version:        >=1.10
 
 executable aoc2020
-  main-is:              Day9Puzzle2.hs
+  main-is:              Day10Puzzle1.hs
   -- other-modules:
   -- other-extensions:
   build-depends:        base >= 4.7 && < 5, directory, split, containers, sort, vector
