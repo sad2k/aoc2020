@@ -34,6 +34,7 @@ transform xs = map transformRow xs
           occRight (r,c) = isOccupied $ drop (c+1) (fst (xs !! r))
           occUp (r,c) = isOccupied $ (if r == 0 then [] else ((reverse . take r) (getCol c)))
           occDown (r,c) = isOccupied $ (if r == maxRow then [] else (drop (r+1) (getCol c)))
+          -- this is horrible - needs to be rewritten to use something (previousLines, nextLine, previousChars, nextChars etc instead of indexing into a list)
           occLeftUp (r,c) = isOccupied $ getElements xs (generateDiagonal (r,c) (\x -> x-1) (\x -> x-1) maxRow maxCol)
           occLeftDown (r,c) = isOccupied $ getElements xs (generateDiagonal (r,c) (\x -> x+1) (\x -> x-1) maxRow maxCol)
           occRightUp (r,c) = isOccupied $ getElements xs (generateDiagonal (r,c) (\x -> x-1) (\x -> x+1) maxRow maxCol)
@@ -50,7 +51,6 @@ run h = do
     contents <- hGetContents h
     let l = lines contents
 
-    -- horribly slow...
     let sol = findSolution (lines contents)
 --     mapM print sol
     print $ (length . filter (=='#') . concat . last) sol
