@@ -32,7 +32,7 @@ allowedTiles n acc xs = (filter isAllowed xs) ++ (filter isAllowed (map rotateRi
           placedSoFar = length acc
           isAllowed t = isMatchFromLeft t && isMatchFromTop t
           isMatchFromLeft t = if fst pos == 0 then True else (head . transpose . getLines) t == (last . transpose . getLines) (last acc)
-          isMatchFromTop t = if snd pos == 0 then True else (head . getLines) t == (last . getLines . head . (drop $ (length acc)-3)) acc
+          isMatchFromTop t = if snd pos == 0 then True else (head . getLines) t == (last . getLines . head . (drop $ (length acc)-n)) acc
           getLines t = snd t
 
 exceptTile :: Tile -> Tile -> Bool
