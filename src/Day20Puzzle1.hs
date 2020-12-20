@@ -62,6 +62,6 @@ run h = do
     let res = placeTiles sqsz [] tiles
     let crn = map (\x -> corners sqsz x) res
     print crn
-    print $ map product corners
+    print $ map product crn
 
 main = withFile "input/Day20.txt" ReadMode run
