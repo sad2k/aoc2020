@@ -24,11 +24,19 @@ flipHorizontally (n, xs) = (n, map reverse xs)
 flipVertically :: Tile -> Tile
 flipVertically (n, xs) = (n, reverse xs)
 
+allRotationsAndFlips :: [Tile] -> [Tile]
+allRotationsAndFlips xs = concat $ map applyMask masks
+    where masks = [(False,False,False),(True,False,False),(False,True,False),(False,False,True),
+                   (True,True,False),(False,True,True),(True,False,True),(True,True,True)] -- should be done in a monadic way somehow?
+          applyMask (isTranspose,isFlipVertically,isFlipHorizontally) = let fun1 = if isTranspose then transpose else id
+                                                                            fun2 = if isFlipVertically then reverse else id
+                                                                            fun3 = if isFlipHorizontally then (map reverse) else id
+                                                                        in map (\t -> (fst t, (fun1 . fun2 . fun3) (snd t))) xs
+
 allowedTiles :: Int -> [Tile] -> [Tile] -> [Tile]
-allowedTiles n acc xs = (filter isAllowed xs) ++ (filter isAllowed (map rotateRight xs)) ++ (filter isAllowed (map rotateLeft xs)) ++
-                            (filter isAllowed (map flipHorizontally xs)) ++ (filter isAllowed (map flipVertically xs)) ++
-                            (filter isAllowed (map (rotateRight . flipHorizontally) xs)) ++ (filter isAllowed (map (rotateRight . flipVertically) xs))
-    where pos = (placedSoFar `mod` n, placedSoFar `div` n)
+allowedTiles n acc xs = res
+    where res = filter isAllowed (allRotationsAndFlips xs)
+          pos = (placedSoFar `mod` n, placedSoFar `div` n)
           placedSoFar = length acc
           isAllowed t = isMatchFromLeft t && isMatchFromTop t
           isMatchFromLeft t = if fst pos == 0 then True else (head . transpose . getLines) t == (last . transpose . getLines) (last acc)
@@ -46,7 +54,9 @@ placeTiles n acc xs = concat $ map f (allowedTiles n acc xs)
 squareSize :: Int -> Int
 squareSize n = round $ sqrt (fromIntegral n)
 
-drawTile t = mapM_ print (snd t)
+drawTile t = do
+    putStrLn "Tile:"
+    mapM_ print (snd t)
 
 corners :: Int -> [Tile] -> [Integer]
 corners n xs = map (\x -> toInteger $ fst $ xs !! (toIdx x)) coords
@@ -106,19 +116,17 @@ run h = do
     let tiles = map parseTile (splitOn [""] ls)
     let sqsz = squareSize (length tiles)
     let res = placeTiles sqsz [] tiles
-    -- in test choose the result that starts with 1951
-    let singleRes = head $ filter (\xs -> fst (head xs) == 1951) res
+    let singleRes = head $ res
     let grouped = (groupTiles sqsz (map removeCorners singleRes))
     let combined = combine grouped
     let seaMonster = ["                  # ",
                       "#    ##    ##    ###",
                       " #  #  #  #  #  #   "]
     let seaMonsterMask = buildMonsterMask seaMonster
-    let testTiles = map (\f -> f combined) [id, rotateRight, rotateLeft, flipHorizontally, flipVertically, rotateRight . flipHorizontally, rotateRight . flipVertically]
+    let testTiles = allRotationsAndFlips [combined]
     let replacedTestTiles = map (\t -> replaceMonsterTile t seaMonsterMask) testTiles
     let succeededReplacement = head $ filter (\t -> any (=='O') ((concat . snd) t)) replacedTestTiles
     drawTile $ succeededReplacement
     print $ (length . filter (=='#') . concat . snd) succeededReplacement
-
 
 main = withFile "input/Day20.txt" ReadMode run
