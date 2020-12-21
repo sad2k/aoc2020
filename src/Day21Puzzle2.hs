@@ -1,6 +1,7 @@
 import System.IO
 import Data.List
 import Data.List.Split
+import Data.Sort
 import qualified Data.Set as Set
 
 parse :: String -> ([String], [String])
@@ -30,10 +31,6 @@ run h = do
     let allergens = Set.toList $ foldl1 (Set.union) (map (Set.fromList . snd) parsed)
     let candidates = map (\a -> (a, findAllergenCandidates parsed a)) allergens
     let finalCandidates = reduce candidates
-    let allSuspectedIngredients = Set.fromList $ concat $ map snd finalCandidates
-    print $ allSuspectedIngredients
-    let allNonAllergic = concat $ map (\x -> Set.toList $ Set.difference ((Set.fromList . fst) x) allSuspectedIngredients) parsed
-    print $ allNonAllergic
-    print $ length allNonAllergic
+    print $ intercalate "," $ concat $ map snd $ sortBy (\p1 p2 -> fst p1 `compare` fst p2) finalCandidates
 
 main = withFile "input/Day21.txt" ReadMode run
