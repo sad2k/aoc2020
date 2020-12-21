@@ -26,8 +26,7 @@ flipVertically (n, xs) = (n, reverse xs)
 
 allRotationsAndFlips :: [Tile] -> [Tile]
 allRotationsAndFlips xs = concat $ map applyMask masks
-    where masks = [(False,False,False),(True,False,False),(False,True,False),(False,False,True),
-                   (True,True,False),(False,True,True),(True,False,True),(True,True,True)] -- should be done in a monadic way somehow?
+    where masks = [(b1,b2,b3) | b1 <- [True,False], b2 <- [True,False], b3 <- [True, False]]
           applyMask (isTranspose,isFlipVertically,isFlipHorizontally) = let fun1 = if isTranspose then transpose else id
                                                                             fun2 = if isFlipVertically then reverse else id
                                                                             fun3 = if isFlipHorizontally then (map reverse) else id
