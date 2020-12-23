@@ -2,14 +2,18 @@ import Data.List
 import Data.List.Split
 import Debug.Trace (trace)
 
+maxNumber :: Int
+maxNumber = 9
+
+findDestination :: Int -> [Int] -> Int
+findDestination 0 taken = findDestination maxNumber taken
+findDestination n taken = if n `elem` taken then findDestination (n-1) taken else n
+
 playRound :: [Int] -> [Int]
 playRound (current:xs) = newList
     where threeCups = take 3 xs
           exceptThree = drop 3 xs
-          destination = if (current-1) `elem` exceptThree then (current-1) else findDestination
-          findDestination = if length allSmallerThanCurrent > 0 then maximum allSmallerThanCurrent else maximum allLargerThanCurrent
-          allSmallerThanCurrent = filter (<current) exceptThree
-          allLargerThanCurrent = filter (>current) exceptThree
+          destination = findDestination (current-1) threeCups
           newList = case (splitOn [destination] (exceptThree)) of
                         [beforeDestination,afterDestination] -> beforeDestination ++ [destination] ++ threeCups ++ afterDestination ++ [current]
 
